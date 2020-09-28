@@ -1,5 +1,4 @@
 import colorsys
-
 class Color_Lib(object):
     def __init__(self):
         self.color_dict = {}
@@ -30,5 +29,30 @@ class Color_Lib(object):
         
     def list(self):
         return self.color_dict
-        
-        
+
+
+def changeColor(omenu, cDict, *ignore):
+    crvSel = cmds.ls(sl=True)
+    crv_shape = cmds.listRelatives(crvSel, s = True)
+    if crv_shape is None:
+        print("Nothing selected")
+    else:
+        cmds.setAttr(crv_shape[0] + ".overrideEnabled", 1)
+        cmds.setAttr(crv_shape[0] + ".overrideRGBColors", 1)
+        key = cmds.optionMenu(omenu, q=True, v=True)
+        val = cDict.get(key, 0)
+        cmds.setAttr(crv_shape[0] + ".overrideColor", val)
+
+
+def buildMenu():
+    if cmds.window("change_colors", exists = True):
+        cmds.deleteUI("change_colors")
+    cmds.window("change_colors")
+
+    cmds.columnLayout()
+    omenu = cmds.optionMenu( label="Colors")
+    colorDict = {"Red" : 13, "Blue": 6, "Yellow": 17, "Green": 14, "Pink" : 9, "Light Blue" : 18}
+    for k in sorted(colorDict.keys()):
+        cmds.menuItem( label=k )
+    cmds.optionMenu(omenu, e = True, cc=partial(changeColor, omenu, colorDict))
+    cmds.showWindow()
